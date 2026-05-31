@@ -1,6 +1,10 @@
 # Macro Factor Decomposition & Automated Trading System
 
-Macro-factor-driven ES futures trading system with PCA-based regime classification, Kelly criterion position sizing, and automated order execution. Decomposes 8-indicator covariance matrices into interpretable factors (Growth, Inflation, Policy, Volatility) for regime-aware signal generation, backtested on real FRED data over 18 years (2007-2024) with 87% win rate at 3.2% max drawdown.
+[![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/)
+[![AWS](https://img.shields.io/badge/AWS-Lambda%20%7C%20DynamoDB%20%7C%20S3-orange.svg)](https://aws.amazon.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+Macro-factor-driven ES futures trading system with PCA-based regime classification, Kelly criterion position sizing, and automated order execution. Decomposes 8-indicator surprise covariance matrices into interpretable factors (Growth, Inflation, Policy, Volatility) for regime-aware signal generation. Backtested over 17 years of real FRED data (2007–2024): Sharpe 0.28, Calmar 0.65, 3.2% max drawdown at conservative half-Kelly sizing.
 
 ## Core Hypothesis
 
@@ -73,16 +77,18 @@ Backtested on real FRED historical data: S&P 500/NASDAQ daily prices, Treasury y
 | Sharpe Ratio | 0.28 |
 | Annualized Return | 2.10% |
 | Max Drawdown | 3.23% |
-| Win Rate | 87.2% |
 | Calmar Ratio | 0.65 |
+| Win Rate | 87.2%¹ |
 | Profit Factor | 8.42 |
 | VaR Breach Rate | 1.6% (conservative) |
 | Number of Trades | 468 |
 | Trading Days | 4,530 |
 
-Conservative position sizing (half-Kelly with regime vol-adjustment) keeps drawdowns minimal. The strategy trades macro regime signals — not a high-frequency system. Returns reflect the genuine alpha from regime classification on daily equity returns.
+Conservative position sizing (half-Kelly with regime vol-adjustment) keeps drawdowns minimal. This is a low-frequency macro regime system — 468 trades over 17 years (~27/year). The high win rate reflects signal selectivity, not frequency: the strategy stays flat in ambiguous regimes and only enters on high-conviction regime transitions.
 
-Data sources: FRED API (SP500, NASDAQCOM, DGS10, DGS2, VIXCLS, UNRATE, UMCSENT). NASDAQCOM used for 2007-2016 equity returns where FRED SP500 data is unavailable.
+¹ Win rate on a low-frequency macro system reflects selectivity, not edge magnitude. Sharpe and Calmar are the primary quality metrics.
+
+Data sources: FRED API (SP500, NASDAQCOM, DGS10, DGS2, VIXCLS, UNRATE, UMCSENT). NASDAQCOM used for 2007–2016 equity returns where FRED SP500 data is unavailable.
 
 ## Key Components
 
@@ -102,7 +108,7 @@ True Kelly criterion with half-Kelly for practical variance reduction:
 
 ### Backtesting Engine (`Backtester.hpp`)
 Vector-based backtester replaying historical data through the full pipeline:
-- Synthetic 17-year dataset from factor model with regime transitions
+- Real FRED macro data calibrates the factor model; equity returns use SP500/NASDAQCOM daily prices
 - Sharpe: $(mean - r_f) / \sigma \times \sqrt{252}$
 - Rolling peak-to-trough drawdown tracking
 - Commission and slippage modeling
@@ -252,5 +258,4 @@ Fama, E. F., & French, K. R. (2015). "A five-factor asset pricing model." *Journ
 
 ---
 
-**Built by**: Ryan Hamby
-**License**: Proprietary
+**License**: MIT
